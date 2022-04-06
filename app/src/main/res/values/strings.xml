@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Ripetizioni</string>
+    <string name="prenotazioni_effettuate">Prenotazioni effettuate</string>
+    <string name="visualizza_corsi">Visualizza corsi</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="signup">SIGN UP</string>
+    <string name="login">LOGIN</string>
+    <string name="nome">Nome</string>
+    <string name="cognome">Cognome</string>
+</resources>
