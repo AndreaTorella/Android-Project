@@ -14,28 +14,32 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentPagerAdapter;
 
 
-import com.ium.ripetizioni.fragment.SignInFragment;
+import com.ium.ripetizioni.fragment.LoginFragment;
 import com.ium.ripetizioni.fragment.SignUpFragment;
 
-public class LoginSignup_fragment extends AppCompatActivity implements View.OnClickListener {
-    private FragmentPagerAdapter adapterViewPager;
+public class LoginSignup extends AppCompatActivity implements View.OnClickListener {
 
-    String richiamo = null;
-    String corso = null;
-    private TextView loginText, signUpBtn;
-    private Button sign_button;
+    String peovenienza;
+    String nomeCorso;
+    int idCorso;
+    TextView loginText, signUpBtn;
+    Button sign_button;
+    EditText nomeEditText;
+    EditText cognomeEditText;
+    EditText emailEditText;
+    EditText passwordEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras = getIntent().getExtras();
-        if (extras == null) richiamo = null;
-        else richiamo = extras.getString("provenienza");
-        if (extras == null) corso = null;
-        else corso = extras.getString("corso");
+        if (extras != null) {
+            peovenienza = extras.getString("provenienza");
+            nomeCorso = extras.getString("nome_corso");
+            idCorso = extras.getInt("id_corso");
+        }
         setContentView(R.layout.activity_login);
 
         loginText = findViewById(R.id.login);
@@ -50,7 +54,7 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
 
         FragmentTransaction transaction;
         transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, new SignInFragment());
+        transaction.replace(R.id.fragment_container, new LoginFragment());
         transaction.commit();
     }
 
@@ -63,7 +67,7 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
         if (v == loginText) {
             sign_button.setText(R.string.login);
             sign_button.setTag(R.string.login);
-            setFragment(new SignInFragment());
+            setFragment(new LoginFragment());
         }
 
         if (v == signUpBtn) {
@@ -77,12 +81,17 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
             if (tag.equals(R.string.login)) {
                 GestioneDB db = new GestioneDB(this);
                 db.open();
-                EditText edit = findViewById(R.id.signin_email);
-                EditText edit1 = findViewById(R.id.signin_password);
-                String email = edit.getText().toString();
-                String password = edit1.getText().toString();
+                emailEditText = findViewById(R.id.login_email);
+                passwordEditText = findViewById(R.id.login_password);
+
+                if (!checkValidFieldsLogin())
+                    return;
+
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+
                 Cursor c = db.getUtenti();
-                boolean debug = true;
+                boolean found = false;
                 if (c.moveToFirst()) {
                     do {
                         if (c.getString(3).equals(email) && c.getString(4).equals(password)) {
@@ -92,19 +101,22 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
                             editor.putString("ID", c.getString(0));
                             editor.apply();
                             Toast.makeText(getApplicationContext(), "Login effettuato!", Toast.LENGTH_SHORT).show();
-                            debug = false;
+                            found = true;
                             db.close();
                             Intent intent = new Intent(this, MainActivity.class);
-                            if (richiamo != null && richiamo.equals("prenotazioni")) {
+                            if (peovenienza != null && peovenienza.equals("prenotazioni")) {
                                 //intent = new Intent(this, ListaPrenotazioni.class);
-                            } else if (richiamo != null && richiamo.equals("listaliberi")) {
-                                //intent = new Intent(this, ListaLiberi.class);
-                                //intent.putExtra("corso", corso);
+                            } else if (peovenienza != null && peovenienza.equals("listaliberi")) {
+                                intent = new Intent(this, ListaLiberi.class);
+                                intent.putExtra("nome_corso", nomeCorso);
+                                intent.putExtra("id_corso", idCorso);
                             }
-                            //this.startActivity(intent);
+                            finish();
+
+                            this.startActivity(intent);
                         }
                     } while (c.moveToNext());
-                    if (debug)
+                    if (!found)
                         Toast.makeText(getApplicationContext(), "L'utente non esiste", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Impossibile effettuare il login", Toast.LENGTH_SHORT).show();
@@ -113,19 +125,23 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
             } else if (tag.equals(R.string.signup)) {
                 GestioneDB db = new GestioneDB(this);
                 db.open();
-                EditText edit1 = findViewById(R.id.nome);
-                EditText edit2 = findViewById(R.id.cognome);
-                EditText edit3 = findViewById(R.id.email);
-                EditText edit4 = findViewById(R.id.password);
-                String nome = edit1.getText().toString();
-                String cognome = edit2.getText().toString();
-                String email = edit3.getText().toString();
-                String password = edit4.getText().toString();
+                nomeEditText = findViewById(R.id.nome);
+                cognomeEditText = findViewById(R.id.cognome);
+                emailEditText = findViewById(R.id.email);
+                passwordEditText = findViewById(R.id.password);
+
+                if (!checkValidFieldsSignup())
+                    return;
+
+                String nome = nomeEditText.getText().toString();
+                String cognome = cognomeEditText.getText().toString();
+                String email = emailEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+
                 long id = db.inserisciUtente(nome, cognome, email, password);
                 if (id != -1) {
                     Toast.makeText(getApplicationContext(), "Registrazione effettuata!", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(), "Impossibile registrarsi!", Toast.LENGTH_SHORT).show();
                 }
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -142,10 +158,66 @@ public class LoginSignup_fragment extends AppCompatActivity implements View.OnCl
                     intent = new Intent(this, ListaPrenotazioni.class);
                 else if (richiamo.equals("listaliberi")) {
                     intent = new Intent(this, ListaLiberi.class);
-                    intent.putExtra("corso", corso);
+                    intent.putExtra("nome_corso", corso);
                 }
                 this.startActivity(intent);*/
             }
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if (peovenienza.equals("listaliberi")) {
+            Intent intent = new Intent(getApplicationContext(), ListaLiberi.class);
+            intent.putExtra("nome_corso", nomeCorso);
+            intent.putExtra("id_corso", idCorso);
+            startActivity(intent);
+        }
+        super.onBackPressed();
+    }
+
+    private boolean checkValidFieldsLogin() {
+        boolean result = true;
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+
+        if (email.length() <= 0) {
+            emailEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+        if (password.length() <= 0) {
+            passwordEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+
+        return result;
+    }
+
+    private boolean checkValidFieldsSignup() {
+        boolean result = true;
+        String nome = nomeEditText.getText().toString();
+        String cognome = cognomeEditText.getText().toString();
+        String email = emailEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+
+        if (nome.length() <= 0) {
+            nomeEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+        if (cognome.length() <= 0) {
+            cognomeEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+        if (email.length() <= 0) {
+            emailEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+        if (password.length() <= 0) {
+            passwordEditText.setError(getString(R.string.mandatory));
+            result = false;
+        }
+
+        return result;
+    }
+
 }

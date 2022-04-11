@@ -6,7 +6,7 @@
     android:layout_marginTop="10dp"
     android:gravity="top"
     android:orientation="vertical"
-    tools:context=".fragment.SignInFragment">
+    tools:context=".fragment.LoginFragment">
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -14,10 +14,10 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/signin_email"
+            android:id="@+id/login_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -28,10 +28,10 @@
         android:layout_marginTop="10dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/signin_password"
+            android:id="@+id/login_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>

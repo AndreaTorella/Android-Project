@@ -20,8 +20,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginSignup_fragment"
+            android:name=".LoginSignup"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" />
+        <activity android:name=".ListaCorsi" />
+        <activity android:name=".ListaLiberi" />
 
 
     </application>
