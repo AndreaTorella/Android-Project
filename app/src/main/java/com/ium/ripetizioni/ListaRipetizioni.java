@@ -28,7 +28,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.ium.ripetizioni.dto.Prenotazione;
+import com.ium.ripetizioni.dto.Ripetizione;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -36,78 +36,69 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ListaPrenotazioni extends AppCompatActivity {
+public class ListaRipetizioni extends AppCompatActivity {
 
-    private final List<String> listviewTeacher = new ArrayList<>();
-    private final List<String> listviewCourse = new ArrayList<>();
-    private final List<String> idPren = new ArrayList<>();
-    private final List<String> listviewDate = new ArrayList<>();
-    private final List<String> listviewStatus = new ArrayList<>();
-    private final int contaElem = 0;
-    Map<Integer, List<String>> mapPrenotazioni = new HashMap<>();
     Context context = this;
-    //Key:id  list[0]: titolo_corso  list[1]: nome_docente list[2]: cognome_docente  list[3]: giorno_ripetizione  list[4]: ora_ripetizione list[5]: stato
+    Map<Integer, List<String>> mapRipetizioni = new HashMap<>();
+    private String nomeCorso;
+    private int idCorso;
+    //Key:id list[0]: nome_docente list[1]: cognome_docente  list[2]: giorno_ripetizione  list[3]: ora_ripetizione
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent intent = getIntent();
+        nomeCorso = intent.getExtras().getString("nome_corso");
+        idCorso = intent.getExtras().getInt("id_corso");
         setContentView(R.layout.activity_listaimg);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        caricamentoLista(preferences.getString("Email", ""));
+        caricamentoLista(idCorso);
 
 
     }
 
-    public void caricamentoLista(String username) {
+    public void caricamentoLista(int idCorso) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "http://10.0.2.2:8080/IUM_TWEB_Project_war_exploded/mainServlet?action=" + "requestpersonalprenotazioniandroid" +
-                "&username=" + username;
+        String url = "http://10.0.2.2:8080/IUM_TWEB_Project_war_exploded/mainServlet?action=" + "requestcorsocatalogo" +
+                "&id_corso=" + idCorso;
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("ListaPrenotazioni", "Dentro onResponde di caricamentoLista");
                         Gson gson = new Gson();
-                        Type listType = new TypeToken<ArrayList<Prenotazione>>() {
+                        Type listType = new TypeToken<ArrayList<Ripetizione>>() {
                         }.getType();
-                        ArrayList<Prenotazione> prenotazioni = gson.fromJson(response, listType);
-
-                        if (prenotazioni.size() == 0) {
+                        ArrayList<Ripetizione> ripetizioni = gson.fromJson(response, listType);
+                        if (ripetizioni.size() == 0) {
                             setEmptyLayout();
                         } else {
-                            /*Key:id  list[0]: titolo_corso  list[1]: nome_docente list[2]: cognome_docente
-                            list[3]: giorno_ripetizione  list[4]: ora_ripetizione list[5]: stato
-                             */
-
-                            for (int i = 0; i < prenotazioni.size(); i++) {
+                            //Toast.makeText(getApplicationContext(), "ripetizioni: " + ripetizioni, Toast.LENGTH_LONG).show();
+                            for (int i = 0; i < ripetizioni.size(); i++) {
                                 ArrayList<String> arrayList = new ArrayList<>();
-                                arrayList.add(prenotazioni.get(i).getCorso().getTitolo());
-                                arrayList.add(prenotazioni.get(i).getDocente().getNome());
-                                arrayList.add(prenotazioni.get(i).getDocente().getCognome());
-                                arrayList.add(prenotazioni.get(i).getSlot().getGiornoString());
-                                arrayList.add(prenotazioni.get(i).getSlot().getOrarioString());
-                                arrayList.add(String.valueOf(prenotazioni.get(i).getStato()));
-                                mapPrenotazioni.put(i, arrayList);
+                                arrayList.add(ripetizioni.get(i).getDocente().getNome());
+                                arrayList.add(ripetizioni.get(i).getDocente().getCognome());
+                                arrayList.add(ripetizioni.get(i).getSlot().getGiornoString());
+                                arrayList.add(ripetizioni.get(i).getSlot().getOrarioString());
+                                mapRipetizioni.put(i, arrayList);
                             }
-                            List<HashMap<String, String>> adapterList = new ArrayList<>();
 
-                            for (int i : mapPrenotazioni.keySet()) {
+                            List<HashMap<String, String>> aList = new ArrayList<>();
+
+                            for (int i : mapRipetizioni.keySet()) {
                                 HashMap<String, String> hm = new HashMap<>();
-                                hm.put("listview_title", "Docente: " + mapPrenotazioni.get(i).get(1) + " " + mapPrenotazioni.get(i).get(2));
-                                hm.put("listview_course", "Corso: " + mapPrenotazioni.get(i).get(0));
-                                hm.put("listview_date", "Giorno: " + mapPrenotazioni.get(i).get(3) + "      Ora: " + mapPrenotazioni.get(i).get(4));
-                                String stato = getFullStatus(mapPrenotazioni.get(i).get(5));
-                                hm.put("listview_status", "Stato: " + stato);
-                                //hm.put("id_pren", idPren.get(i));
-                                adapterList.add(hm);
+                                hm.put("listview_course", "Corso: " + nomeCorso);
+                                hm.put("listview_title", "Docente: " + mapRipetizioni.get(i).get(0) + " " + mapRipetizioni.get(i).get(1));
+                                hm.put("listview_date", "Giorno: " + mapRipetizioni.get(i).get(2) + "    Ora: " +
+                                        mapRipetizioni.get(i).get(3));
+                                //hm.put("id_pren", id_prenotazione.get(i));
+                                aList.add(hm);
                             }
 
-                            String[] from = {"listview_course", "listview_title", "listview_date", "listview_status"};
-                            int[] to = {R.id.listview_item_course, R.id.listview_item_title, R.id.listview_item_short_description, R.id.listview_item_status};
+                            String[] from = {"listview_course", "listview_title", "listview_date"};
+                            int[] to = {R.id.listview_item_course, R.id.listview_item_title, R.id.listview_item_short_description};
 
-                            SimpleAdapter simpleAdapter = new SimpleAdapter(getBaseContext(), adapterList, R.layout.activity_lista_prenotazioni, from, to);
+                            SimpleAdapter simpleAdapter = new SimpleAdapter(getBaseContext(), aList, R.layout.activity_lista_ripetizioni, from, to);
                             ListView androidListView = findViewById(R.id.list_view);
                             androidListView.setAdapter(simpleAdapter);
                             androidListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -117,31 +108,42 @@ public class ListaPrenotazioni extends AppCompatActivity {
                                     final String value = item.get("listview_title");
                                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                     final String username = preferences.getString("Email", "");
+                                    //Toast.makeText(getApplicationContext(), "Username: " + username, Toast.LENGTH_LONG).show();
                                     if (username.equalsIgnoreCase("")) {
-                                        Intent intent = new Intent(getApplicationContext(), LoginSignup.class);
-                                        startActivity(intent);
+                                        new AlertDialog.Builder(ListaRipetizioni.this)
+                                                .setTitle("Prenotazione")
+                                                .setMessage("Devi prima effettuare il login! Procedere ora?")
+                                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                                        Intent intent = new Intent(getApplicationContext(), LoginSignup.class);
+                                                        intent.putExtra("provenienza", "listaliberi");
+                                                        intent.putExtra("nome_corso", nomeCorso);
+                                                        intent.putExtra("id_corso", idCorso);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+                                                })
+                                                .setNegativeButton(android.R.string.no, null).show();
                                     } else {
-                                        //TODO richiamare API per rimozione prenotazione
                                         String[] myArray = item.get("listview_date").split("    ");
                                         String[] docenteArray = item.get("listview_title").split("Docente: ");
                                         String[] nomeCognomeDocente = docenteArray[1].split(" ");
                                         String[] token1 = myArray[0].split(": ");
                                         String[] token2 = myArray[1].split(": ");
-                                        String[] corsoArray = item.get("listview_course").split("Corso: ");
                                         String giorno = token1[1];
                                         String ora = token2[1];
                                         String nomeDocente = nomeCognomeDocente[0];
                                         String cognomeDocente = nomeCognomeDocente[1];
-                                        String titoloCorso = corsoArray[1];
 
-                                        new AlertDialog.Builder(ListaPrenotazioni.this)
+                                        new AlertDialog.Builder(ListaRipetizioni.this)
                                                 .setTitle("Prenotazione")
-                                                .setMessage("Vuoi eliminare la prenotazione?")
+                                                .setMessage("Vuoi confermare la prenotazione?")
                                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
                                                     public void onClick(DialogInterface dialog, int whichButton) {
                                                         RequestQueue queue = Volley.newRequestQueue(context);
-                                                        String url = "http://10.0.2.2:8080/IUM_TWEB_Project_war_exploded/mainServlet?action=" + "requestdropprenotazioneandroid" +
-                                                                "&corso=" + titoloCorso +
+                                                        String url = "http://10.0.2.2:8080/IUM_TWEB_Project_war_exploded/mainServlet?action=" + "requestinsertprenotazioneandroid" +
+                                                                "&corso=" + nomeCorso +
                                                                 "&nome=" + nomeDocente +
                                                                 "&cognome=" + cognomeDocente +
                                                                 "&giorno=" + giorno +
@@ -154,10 +156,9 @@ public class ListaPrenotazioni extends AppCompatActivity {
                                                                     public void onResponse(String response) {
                                                                         Log.d("ListaLiberi", "Dentro on_response del server, response: " + response);
                                                                         if (response.equals("done")) {
-                                                                            Intent intent = new Intent(getApplicationContext(), ListaPrenotazioni.class);
-                                                                            startActivity(intent);
+                                                                            Toast.makeText(getApplicationContext(), "Prenotazione effettuata!", Toast.LENGTH_LONG).show();
                                                                             finish();
-                                                                            Toast.makeText(getApplicationContext(), "Prenotazione eliminata!", Toast.LENGTH_SHORT).show();
+                                                                            startActivity(getIntent());
                                                                         }
                                                                     }
                                                                 }, new Response.ErrorListener() {
@@ -185,31 +186,16 @@ public class ListaPrenotazioni extends AppCompatActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                //textView.setText("That didn't work!");
             }
         });
-
         queue.add(stringRequest);
-
-    }
-
-    private String getFullStatus(String string) {
-        switch (string) {
-            case "1":
-                return "Prenotata";
-            case "2":
-                return "Effettuata";
-            case "3":
-                return "Disdetta";
-        }
-
-        return "";
     }
 
     private void setEmptyLayout() {
         RelativeLayout mainLayout = findViewById(R.id.emptyLayout);
         View content = getLayoutInflater()
-                .inflate(R.layout.content_empty_lista_prenotazioni, mainLayout, false);
+                .inflate(R.layout.content_empty_lista_liberi, mainLayout, false);
         mainLayout.addView(content);
     }
 
@@ -226,7 +212,9 @@ public class ListaPrenotazioni extends AppCompatActivity {
 
         if (name.equalsIgnoreCase("")) {
             Intent intent = new Intent(this, LoginSignup.class);
-            intent.putExtra("provenienza", "prenotazioni");
+            intent.putExtra("nome_corso", nomeCorso);
+            intent.putExtra("id_corso", idCorso);
+            intent.putExtra("provenienza", "ripetizioni");
             this.startActivity(intent);
             finish();
         } else {
@@ -235,28 +223,9 @@ public class ListaPrenotazioni extends AppCompatActivity {
             editor.putString("ID", "");
             editor.apply();
             Toast.makeText(getApplicationContext(), "Logout effettuato!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, MainActivity.class);
-            this.startActivity(intent);
-            finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-
-    public void gotoCorsi(View view) {
-        Intent intent = new Intent(this, ListaCorsi.class);
-        intent.putExtra("provenienza", "prenotazioni");
-        this.startActivity(intent);
-        finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-        finish();
-
-        super.onBackPressed();
-    }
 }

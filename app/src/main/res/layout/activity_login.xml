@@ -13,7 +13,7 @@
         android:layout_marginTop="180dp"
         android:fontFamily="serif"
         android:text="@string/app_name"
-        android:textColor="@color/purple_700"
+        android:textColor="#009874"
         android:textSize="60sp"
         android:typeface="normal" />
 

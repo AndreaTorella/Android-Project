@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true"
     android:layout_centerVertical="true"
@@ -9,19 +9,24 @@
 
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_ripetizioni_title"
-        android:textAlignment="center"
+        android:text="@string/no_prenotazioni_title"
 
+        android:textAlignment="center"
         android:textSize="17sp"
         android:textStyle="bold" />
 
     <TextView
-        android:layout_width="398dp"
+        android:id="@+id/no_prenotazioni_clickable"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:onClick="gotoCorsi"
         android:paddingTop="10dp"
-        android:text="@string/no_ripetizioni_descrizione"
+        android:text="@string/no_prenotazioni_descrizione"
         android:textAlignment="center"
+        android:textColor="@color/colorPrimaryVariant"
         android:textSize="16sp" />
 </LinearLayout>

@@ -45,12 +45,13 @@ public class GestioneDB {
     static final String CREATE_PRENOTATE = "CREATE TABLE prenotate " +
             "(id_utente integer, " +
             "id_prenotazione integer, " +
+            "stato text," +
             "PRIMARY KEY (id_utente, id_prenotazione));";
 
     static final String INSERT_UTENTE = "INSERT INTO utente (nome, cognome, email, password) VALUES " +
             "(\"agostino\", \"messsina\", \"agostino@mail.com\", \"agostino\");";
     static final String INSERT_LIBERE = "INSERT INTO libere (id_docenza, giorno, ora) VALUES" +
-            "(1, 1, 1), " +
+            "(1, 1, 1)," +
             "(2, 2, 2)," +
             "(3, 3, 3)," +
             "(1, 2, 1);";
@@ -220,13 +221,15 @@ public class GestioneDB {
     }
 
     public Cursor getPrenotati(String id_utente) {
-        String sql = "SELECT docenza.nome_prof, libere.giorno, libere.ora, libere.id " +
+        /*String sql = "SELECT docenza.nome_prof, libere.giorno, libere.ora, prenotate.stato, libere.id " +
                 "FROM docenza INNER JOIN libere ON docenza.id = libere.id_docenza " +
                 "WHERE libere.id IN ( " +
                 "SELECT id_prenotazione " +
                 "FROM prenotate " +
                 "WHERE id_utente ='" + id_utente + "' )" +
-                "ORDER BY giorno";
+                "ORDER BY giorno";*/
+        String sql = "SELECT docenza.nome_prof, libere.giorno, libere.ora, prenotate.stato, libere.id " +
+                "FROM docenza JOIN libere ON docenza.id = libere.id_docenza JOIN prenotate ON id_utente ='\" + id_utente + \"'";
         return db.rawQuery(sql, null);
     }
 
@@ -247,7 +250,7 @@ public class GestioneDB {
     }
 
     public void cancellaPrenotazione(String id) {
-        String sql = "DELETE FROM prenotate WHERE id_prenotazione=" + id;
+        String sql = "UPDATE prenotate SET stato = 'D' WHERE id_prenotazione=" + id;
         db.execSQL(sql);
     }
 

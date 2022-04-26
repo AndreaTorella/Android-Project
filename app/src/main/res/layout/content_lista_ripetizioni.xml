@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    tools:context=".ListaPrenotazioni">
+    tools:context=".ListaRipetizioni">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -17,33 +17,28 @@
             android:id="@+id/listview_item_course"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
             android:text="Corso"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/listview_item_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:text="Docente"
-            android:textSize="17sp" />
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/listview_item_short_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Giorno - Ora"
+            android:layout_marginTop="5dp"
+            android:text="Ora"
             android:textSize="16sp" />
 
-        <TextView
-            android:id="@+id/listview_item_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:text="Stato"
-            android:textSize="16sp" />
     </LinearLayout>
 
     <ImageView
@@ -52,7 +47,8 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:background="@android:color/transparent"
-        android:contentDescription="Delete"
-        android:src="@android:drawable/ic_menu_delete"
-        android:tint="@color/black" />
+        android:contentDescription="Get"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+
 </RelativeLayout>
